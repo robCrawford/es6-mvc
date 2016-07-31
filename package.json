@@ -1,0 +1,33 @@
+{
+  "name": "react-project-template",
+  "version": "1.0.0",
+  "description": "React project template",
+  "main": "app.js",
+  "scripts": {
+    "test": "./node_modules/karma/bin/karma start"
+  },
+  "author": "Rob Crawford",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-preset-es2015": "*",
+    "babelify": "*",
+    "browserify": "*",
+    "del": "*",
+    "gulp": "*",
+    "gulp-clean-css": "*",
+    "gulp-concat": "*",
+    "gulp-less": "^3.1.0",
+    "gulp-plumber": "*",
+    "gulp-sourcemaps": "*",
+    "gulp-tap": "*",
+    "gulp-uglify": "*",
+    "gulp-util": "*",
+    "gulp-watch": "*",
+    "jasmine-core": "*",
+    "karma": "*",
+    "karma-chrome-launcher": "*",
+    "karma-jasmine": "*",
+    "vinyl-buffer": "*"
+  },
+  "dependencies": {}
+}

@@ -1,0 +1,3 @@
+/*
+  Vendor scripts go here
+*/
