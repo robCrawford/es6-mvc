@@ -15,7 +15,7 @@ export default class {
               Model
               set()` & `get()` for data, `on()` for listeners
             */
-            new app.Model(function() {
+            new app.Model(function() { // Runs once MVC is bound
 
                 // Add any business logic
                 this.sanitize = props => {
@@ -28,7 +28,7 @@ export default class {
                 }
 
                 // Set any listeners
-                this.on('set', props => this.sanitize(props));
+                this.on('setPre', props => this.sanitize(props));
 
                 // Populate model
                 this.set({
@@ -42,7 +42,7 @@ export default class {
               View
               `el` div is created automatically if unset
             */
-            new app.View(function() {
+            new app.View(function() { // Runs once MVC is bound
 
                 // Set DOM ref
                 this.el = document.getElementById('userForm');
@@ -57,7 +57,12 @@ export default class {
               Controller
               `bind({...})` allows easy wiring per DOM selector by supplying MVC arguments
             */
-            new app.Controller(function(model, view, controller) {
+            new app.Controller(function(model, view, controller) { // Runs once MVC is bound
+
+                // Render on change
+                model.on('change', function() {
+                    document.getElementById('userModel').innerHTML = JSON.stringify(model);
+                });
 
                 // Example 2 way bindings
                 this.bind({
@@ -66,7 +71,7 @@ export default class {
                         el.onkeyup = function() {
                             model.set('firstName', this.value);
                         };
-                        model.on('change', function() {
+                        model.on('setPost', function() {
                             el.value = this.get('firstName');
                         });
                     },
@@ -75,9 +80,8 @@ export default class {
                         el.onkeyup = function() {
                             model.set('lastName', this.value);
                         };
-                        model.on('change', function() {
+                        model.on('setPost', function() {
                             el.value = this.get('lastName');
-                            document.getElementById('userModel').innerHTML = JSON.stringify(model);
                         });
                     }
 

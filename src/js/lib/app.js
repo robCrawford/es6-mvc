@@ -7,18 +7,15 @@ export function add(name, model, view, controller) {
     controller.model = model;
     controller.view = view;
 
-    if (model.init) {
-        model.init();
-    }
     if (view.init) {
         view.init();
     }
     if (controller.init) {
-        controller.init();
+        controller.init(model, view, controller);
     }
-
-    // Run initial 'change' callbacks
-    model.change();
+    if (model.init) {
+        model.init();
+    }
 
     return (modules[name] = {
         model: model,
@@ -39,29 +36,32 @@ export class Model{
     constructor (init) {
         this.tree = {};
         this.callbacks = {
-            set: [],
+            setPre: [],
+            setPost: [],
             change: []
         };
         this.init = init && init.bind(this);
     }
 
-    change () {
-        const changeCallbacks = this.callbacks["change"];
-        let i = changeCallbacks.length;
-        while (i--) {
-            changeCallbacks[i].call(this, this);
-        }
-    }
-
-    beforeSet (props) {
+    setPre (props) {
         // Allows validation etc. before setting props
         // `props` is a copy that can be safely mutated
-        const setCallbacks = this.callbacks["set"];
-        let i = setCallbacks.length;
+        const callbacks = this.callbacks["setPre"];
+        let i = callbacks.length;
         while (i--) {
-            props = setCallbacks[i].call(this, props);
+            props = callbacks[i].call(this, props);
         }
         return props;
+    }
+
+    setPost (props) {
+        // Runs callbacks after `set()` whether model changed or not
+        this.runCallbacks("setPost");
+    }
+
+    change () {
+        // Runs callbacks after `set()` if model changed
+        this.runCallbacks("change");
     }
 
     set (props, atPath) {
@@ -75,11 +75,13 @@ export class Model{
             atPath = arguments[2];
         };
         let currNode = (atPath ? this.tree[atPath] : this.tree);
-        // Run any "set" callbacks on a copy of `props`
-        props = this.beforeSet(merge({}, props));
+        // Run any "setPre" callbacks on a copy of `props`
+        props = this.setPre(merge({}, props));
         merge(currNode, props, isChanged => {
-            // Run any "change" callbacks
-            if (isChanged) model.change();
+            if (isChanged) {
+                model.change();
+            }
+            this.setPost();
         });
         return this; // For chaining
     }
@@ -90,8 +92,18 @@ export class Model{
 
     on (label, callback) {
         const callbacks = this.callbacks[label];
-        if (callbacks) callbacks.unshift(callback);
+        if (callbacks) {
+            callbacks.unshift(callback);
+        }
         return this; // For chaining
+    }
+
+    runCallbacks (label) {
+        const callbacks = this.callbacks[label];
+        let i = callbacks.length;
+        while (i--) {
+            callbacks[i].call(this, this.tree);
+        }
     }
 
     toJSON () {
@@ -137,6 +149,7 @@ export class Controller {
                 }
             }
         }
+        return this; // For chaining
     }
 }
 
@@ -164,7 +177,7 @@ export function setNode(tree, pathStr, value) {
         if (nextProp === undefined) {
             currNode[prop] = value;
         }
-        //Else create any missing nodes in path
+        // Else create any missing nodes in path
         else if (currNode[prop] === undefined) {
             // Create an array if nextProp is numeric, otherwise an object
             currNode[prop] = isNaN(nextProp) ? {} : [];
