@@ -2,7 +2,6 @@ import * as app from "../lib/app";
 
 /*
   Example module for a web form
-  See comments
 */
 export default class {
 
@@ -12,16 +11,15 @@ export default class {
             "userForm",
 
             /*
-              Model
-              set()` & `get()` for data, `on()` for listeners
+              Model - `set()`, `get()` & `on()` methods
             */
-            new app.Model(function() { // Runs once MVC is bound
+            new app.Model(function() {
 
                 // Add any business logic
                 this.sanitize = props => {
-                    for (var p in props) {
+                    for (const p in props) {
                         if (props.hasOwnProperty(p)) {
-                            props[p] = props[p].replace(/%\w\w|[\u0080-\uFFFF]+|\W/g, '');
+                            props[p] = props[p].replace(/\W/g, '');
                         }
                     }
                     return props;
@@ -35,14 +33,14 @@ export default class {
                     firstName: 'Philip',
                     lastName: 'Fry'
                 });
+
             }),
 
 
             /*
-              View
-              `el` div is created automatically if unset
+              View - `el` property
             */
-            new app.View(function() { // Runs once MVC is bound
+            new app.View(function() {
 
                 // Set DOM ref
                 this.el = document.getElementById('userForm');
@@ -54,10 +52,9 @@ export default class {
 
 
             /*
-              Controller
-              `bind({...})` allows easy wiring per DOM selector by supplying MVC arguments
+              Controller - MVC arguments, `bind()` method
             */
-            new app.Controller(function(model, view, controller) { // Runs once MVC is bound
+            new app.Controller(function(model, view, controller) {
 
                 // Render on change
                 model.on('change', function() {

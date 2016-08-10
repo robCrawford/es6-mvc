@@ -2,12 +2,13 @@
 #ES6 App
 
 A minimal MVC pattern for ES6 applications.  
-This should provide the wiring for data binding and SOC, with no additional features.  
+This should provide the wiring for data binding and SOC, with no additional features. *[(app.js)](https://github.com/robCrawford/es6-app/blob/master/src/js/lib/app.js)*  
+Set up for ES6 modules with sourcemaps, Karma, and Less.  
 
-Set up for ES6 modules with sourcemaps, Karma tests, and Less CSS.  
 
+### Set up  
 Install: `npm install`  
-Build: `gulp`  
+Build: `gulp` *(or `gulp dev`/`gulp prod`)*  
 Test: `npm test`  
 Run: `dist/index.html`  
 
@@ -15,87 +16,96 @@ Run: `dist/index.html`
 ### Example syntax  
 *UserForm.js - ([demo here](http://robcrawford.github.io/demos/es6-app/))*
 ```javascript
+import * as app from "../lib/app";
 
-app.add(
-    "userForm",
+/*
+  Example module for a web form
+*/
+export default class {
 
-    /*
-      Model
-      set()` & `get()` for data, `on()` for listeners
-    */
-    new app.Model(function() { // Runs once MVC is bound
+    constructor() {
 
-        // Add any business logic
-        this.sanitize = props => {
-            for (var p in props) {
-                if (props.hasOwnProperty(p)) {
-                    props[p] = props[p].replace(/%\w\w|[\u0080-\uFFFF]+|\W/g, '');
+        app.add(
+            "userForm",
+
+            /*
+              Model - `set()`, `get()` & `on()` methods
+            */
+            new app.Model(function() {
+
+                // Add any business logic
+                this.sanitize = props => {
+                    for (const p in props) {
+                        if (props.hasOwnProperty(p)) {
+                            props[p] = props[p].replace(/\W/g, '');
+                        }
+                    }
+                    return props;
                 }
-            }
-            return props;
-        }
 
-        // Set any listeners
-        this.on('setPre', props => this.sanitize(props));
+                // Set any listeners
+                this.on('setPre', props => this.sanitize(props));
 
-        // Populate model
-        this.set({
-            firstName: 'Philip',
-            lastName: 'Fry'
-        });
-    }),
-
-
-    /*
-      View
-      `el` div is created automatically if unset
-    */
-    new app.View(function() { // Runs once MVC is bound
-
-        // Set DOM ref
-        this.el = document.getElementById('userForm');
-
-        // Populate view (just a simple example)
-        this.el.innerHTML = 'First name: <input id="firstName">' +
-            'Surname: <input id="lastName">';
-    }),
-
-
-    /*
-      Controller
-      `bind({...})` allows easy wiring per DOM selector by supplying MVC arguments
-    */
-    new app.Controller(function(model, view, controller) { // Runs once MVC is bound
-
-        // Render on change
-        model.on('change', function() {
-            document.getElementById('userModel').innerHTML = JSON.stringify(model);
-        });
-
-        // Example 2 way bindings
-        this.bind({
-
-            '#firstName': (el, model, view, controller) => {
-                el.onkeyup = function() {
-                    model.set('firstName', this.value);
-                };
-                model.on('setPost', function() {
-                    el.value = this.get('firstName');
+                // Populate model
+                this.set({
+                    firstName: 'Philip',
+                    lastName: 'Fry'
                 });
-            },
 
-            '#lastName': (el, model, view, controller) => {
-                el.onkeyup = function() {
-                    model.set('lastName', this.value);
-                };
-                model.on('setPost', function() {
-                    el.value = this.get('lastName');
+            }),
+
+
+            /*
+              View - `el` property
+            */
+            new app.View(function() {
+
+                // Set DOM ref
+                this.el = document.getElementById('userForm');
+
+                // Populate view (just a simple example)
+                this.el.innerHTML = 'First name: <input id="firstName">' +
+                    'Surname: <input id="lastName">';
+            }),
+
+
+            /*
+              Controller - MVC arguments, `bind()` method
+            */
+            new app.Controller(function(model, view, controller) {
+
+                // Render on change
+                model.on('change', function() {
+                    document.getElementById('userModel').innerHTML = JSON.stringify(model);
                 });
-            }
 
-        });
+                // Example 2 way bindings
+                this.bind({
 
-    })
-);
+                    '#firstName': (el, model, view, controller) => {
+                        el.onkeyup = function() {
+                            model.set('firstName', this.value);
+                        };
+                        model.on('setPost', function() {
+                            el.value = this.get('firstName');
+                        });
+                    },
+
+                    '#lastName': (el, model, view, controller) => {
+                        el.onkeyup = function() {
+                            model.set('lastName', this.value);
+                        };
+                        model.on('setPost', function() {
+                            el.value = this.get('lastName');
+                        });
+                    }
+
+                });
+
+            })
+        );
+    }
+
+};
 
 ```

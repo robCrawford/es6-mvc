@@ -44,8 +44,8 @@ export class Model{
     }
 
     setPre (props) {
-        // Allows validation etc. before setting props
-        // `props` is a copy that can be safely mutated
+    // Allows validation etc. before setting props
+    // `props` is a copy that can be safely mutated
         const callbacks = this.callbacks["setPre"];
         let i = callbacks.length;
         while (i--) {
@@ -55,31 +55,26 @@ export class Model{
     }
 
     setPost (props) {
-        // Runs callbacks after `set()` whether model changed or not
+    // Runs callbacks after `set()` whether model changed or not
         this.runCallbacks("setPost");
     }
 
     change () {
-        // Runs callbacks after `set()` if model changed
+    // Runs callbacks after `set()` if model changed
         this.runCallbacks("change");
     }
 
-    set (props, atPath) {
-        // `atPath` is optional (defaults to root)
-        // Alternative arguments: (key, value, atPath)
-        const model = this;
-        if (typeof props === "string") {
-            const propsOb = {};
-            propsOb[arguments[0]] = arguments[1];
-            props = propsOb;
-            atPath = arguments[2];
+    set (propsOrKey, value) {
+    // Accepts props object `{...}` OR 'key', 'value'
+        let props = isObject(propsOrKey) ? propsOrKey : {
+            [propsOrKey]: value
         };
-        let currNode = (atPath ? this.tree[atPath] : this.tree);
         // Run any "setPre" callbacks on a copy of `props`
         props = this.setPre(merge({}, props));
-        merge(currNode, props, isChanged => {
+
+        merge(this.tree, props, isChanged => {
             if (isChanged) {
-                model.change();
+                this.change();
             }
             this.setPost();
         });
@@ -107,7 +102,7 @@ export class Model{
     }
 
     toJSON () {
-        // Return tree for JSON.stringify()
+    // Return tree for JSON.stringify()
         return this.tree;
     }
 }
@@ -139,7 +134,7 @@ export class Controller {
     }
 
     bind (bindings) {
-        // Run binding functions for selectors
+    // Run binding functions for selectors
         for (const selector in bindings) {
             if (bindings.hasOwnProperty(selector)) {
                 const domEls = document.querySelectorAll(selector);
@@ -156,15 +151,11 @@ export class Controller {
 /*
   Utils
 */
-function isFunction(o) {
-    return typeof o === 'function';
-}
-
 function isObject(o) {
     return o === Object(o) &&
            !o.nodeType &&
            !Array.isArray(o) &&
-           !isFunction(o) &&
+           !(typeof o === 'function') &&
            !(o instanceof RegExp);
 }
 
@@ -251,7 +242,7 @@ export function merge( /* [mergeChildObs,] {}, {} [, ...] [, callback] */ ) {
                 }
                 if (!retOb) continue;
             }
-            for (let p in param) {
+            for (const p in param) {
                 if (param.hasOwnProperty(p)) {
                     const val = param[p];
 
