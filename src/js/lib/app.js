@@ -1,3 +1,5 @@
+"use strict";
+
 /*
   App
 */
@@ -64,20 +66,25 @@ export class Model{
         this.runCallbacks("change");
     }
 
-    set (propsOrKey, value) {
-    // Accepts props object `{...}` OR 'key', 'value'
-        let props = isObject(propsOrKey) ? propsOrKey : {
-            [propsOrKey]: value
-        };
-        // Run any "setPre" callbacks on a copy of `props`
-        props = this.setPre(merge({}, props));
+    set (propsOrPath, value) {
+    // Accepts props object `{...}` OR 'path', 'value'
+        let changeEvent;
 
-        merge(this.tree, props, isChanged => {
-            if (isChanged) {
-                this.change();
-            }
-            this.setPost();
-        });
+        if (isObject(propsOrPath)) {
+            // Run any "setPre" callbacks on a copy of `props`
+            const props = this.setPre(merge({}, propsOrPath));
+            merge(this.tree, props, isChanged => changeEvent = isChanged);
+        }
+        else {
+            const path = propsOrPath;
+            // Run any "setPre" callbacks
+            value = this.setPre({[path]: value})[path];
+            changeEvent = setNode(this.tree, path, value);
+        }
+        if (changeEvent) {
+            this.change();
+        }
+        this.setPost();
         return this; // For chaining
     }
 
@@ -159,21 +166,33 @@ function isObject(o) {
            !(o instanceof RegExp);
 }
 
+function isNumeric(val) {
+    return Number(parseFloat(val)) == val;
+}
+
 export function setNode(tree, pathStr, value) {
 // Set node at path string to value
 // Any missing nodes are created
 // NOTE: all numeric nodes below root are assumed to be array indexes
+// Returns boolean `true` if value was changed
+    let isChanged = false;
+
     getNode(tree, pathStr, (currNode, prop, nextProp) => {
-        // Last segment of path string, just set value
+        // Last segment of path string, set value if different
         if (nextProp === undefined) {
-            currNode[prop] = value;
+            const currVal = currNode[prop];
+            if (value !== currVal) {
+                currNode[prop] = value;
+                isChanged = true;
+            }
         }
         // Else create any missing nodes in path
         else if (currNode[prop] === undefined) {
             // Create an array if nextProp is numeric, otherwise an object
-            currNode[prop] = isNaN(nextProp) ? {} : [];
+            currNode[prop] = isNumeric(nextProp) ? [] : {};
         }
     });
+    return isChanged;
 }
 
 export function getNode(tree, pathStr, eachCallback) {

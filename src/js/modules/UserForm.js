@@ -18,7 +18,7 @@ export default class {
                 // Add any business logic
                 this.sanitize = props => {
                     for (const p in props) {
-                        if (props.hasOwnProperty(p)) {
+                        if (props.hasOwnProperty(p) && typeof props[p] === "string") {
                             props[p] = props[p].replace(/\W/g, '');
                         }
                     }
@@ -34,6 +34,8 @@ export default class {
                     lastName: 'Fry'
                 });
 
+                // Set by path
+                this.set('location.year', 2052);
             }),
 
 
