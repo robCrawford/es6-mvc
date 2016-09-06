@@ -1,5 +1,5 @@
-import Boot from "./modules/Boot";
-import UserForm from "./modules/UserForm";
+import Boot from "./modules/Boot/Boot";
+import UserForm from "./modules/UserForm/UserForm";
 
 new Boot()
     .then(() => {

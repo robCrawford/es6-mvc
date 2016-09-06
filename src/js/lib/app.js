@@ -4,30 +4,23 @@
   App
 */
 const modules = [];
+let currView, currModel;
 
-export function add(name, model, view, controller) {
-    controller.model = model;
-    controller.view = view;
+export function add(moduleName, M, V, C) {
+    const view = currView = new V();
+    const model = currModel = new M();
+    const controller = new C();
+    model.init();
 
-    if (view.init) {
-        view.init();
-    }
-    if (controller.init) {
-        controller.init(model, view, controller);
-    }
-    if (model.init) {
-        model.init();
-    }
-
-    return (modules[name] = {
+    return (modules[moduleName] = {
         model: model,
         view: view,
         controller: controller
     });
 }
 
-export function get(name) {
-    return modules[name];
+export function get(moduleName) {
+    return modules[moduleName];
 }
 
 /*
@@ -35,17 +28,25 @@ export function get(name) {
 */
 export class Model{
 
-    constructor (init) {
+    constructor() {
         this.tree = {};
         this.callbacks = {
             setPre: [],
             setPost: [],
             change: []
         };
-        this.init = init && init.bind(this);
     }
 
-    setPre (props) {
+    init() {
+    // Run any callbacks registered during instantiation
+        for (var p in this.callbacks) {
+            if (this.callbacks.hasOwnProperty(p)) {
+                this.runCallbacks(p);
+            }
+        }
+    }
+
+    setPre(props) {
     // Allows validation etc. before setting props
     // `props` is a copy that can be safely mutated
         const callbacks = this.callbacks["setPre"];
@@ -56,17 +57,17 @@ export class Model{
         return props;
     }
 
-    setPost (props) {
+    setPost(props) {
     // Runs callbacks after `set()` whether model changed or not
         this.runCallbacks("setPost");
     }
 
-    change () {
+    change() {
     // Runs callbacks after `set()` if model changed
         this.runCallbacks("change");
     }
 
-    set (propsOrPath, value) {
+    set(propsOrPath, value) {
     // Accepts props object `{...}` OR 'path', 'value'
         let changeEvent;
 
@@ -88,11 +89,11 @@ export class Model{
         return this; // For chaining
     }
 
-    get (path) {
+    get(path) {
         return getNode(this.tree, path);
     }
 
-    on (label, callback) {
+    on(label, callback) {
         const callbacks = this.callbacks[label];
         if (callbacks) {
             callbacks.unshift(callback);
@@ -100,7 +101,7 @@ export class Model{
         return this; // For chaining
     }
 
-    runCallbacks (label) {
+    runCallbacks(label) {
         const callbacks = this.callbacks[label];
         let i = callbacks.length;
         while (i--) {
@@ -108,7 +109,7 @@ export class Model{
         }
     }
 
-    toJSON () {
+    toJSON() {
     // Return tree for JSON.stringify()
         return this.tree;
     }
@@ -119,15 +120,16 @@ export class Model{
 */
 export class View {
 
-    constructor (init) {
-        this.init = init && init.bind(this);
+    constructor() {
+        // Derived class must assign `el` property
+    }
 
-        if (!this.el) {
-            this.el = document.createElement("div");
-        }
-        if (!this.el.parentNode) {
-            document.body.appendChild(this.el);
-        }
+    get(selector) {
+        return this.el.querySelector(selector);
+    }
+
+    getAll(selector) {
+        return this.el.querySelectorAll(selector);
     }
 }
 
@@ -136,15 +138,23 @@ export class View {
 */
 export class Controller {
 
-    constructor (init) {
-        this.init = init && init.bind(this);
+    constructor() {
+        this.model = currModel;
+        if (currView.el) {
+            this.view = currView;
+        }
+        else {
+            throw(new Error('View.el required!'));
+        }
+        currModel = null;
+        currView = null;
     }
 
-    bind (bindings) {
-    // Run binding functions for selectors
+    bind(bindings) {
+    // Run binding functions for selectors (within view.el)
         for (const selector in bindings) {
             if (bindings.hasOwnProperty(selector)) {
-                const domEls = document.querySelectorAll(selector);
+                const domEls = this.view.el.querySelectorAll(selector);
                 let i = domEls.length;
                 while (i--) {
                     bindings[selector].call(this, domEls[i], this.model, this.view, this);

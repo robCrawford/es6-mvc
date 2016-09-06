@@ -1,4 +1,4 @@
-import Boot from "../../js/modules/Boot";
+import Boot from "../../js/modules/Boot/Boot";
 
 describe("Boot module", function(){
 
