@@ -1,15 +1,19 @@
 html {
   font: 12px sans-serif;
+  max-width: 500px;
 }
 label {
   display: block;
+  margin: 2px;
 }
-input {
+input,
+textarea {
   display: block;
   margin: 2px 0 10px;
+  width: 90%;
 }
 div {
-  display: inline-block;
+  display: block;
   padding: 10px;
   background: #ddd;
   border-radius: 5px;

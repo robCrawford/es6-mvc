@@ -1,25 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8" />
-<title> App </title>
-
-<script src="js/vendor.js"></script>
-<script src="js/main.js"></script>
-<link rel="stylesheet" type="text/css" href="css/main.css">
-
+    <meta charset="utf-8" />
+    <title> App </title>
+    <script src="js/vendor.js"></script>
+    <script src="js/main.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body>
 
-    <form id="userForm">
+    <form id="commentForm">
 
-        <label>Model</label>
-        <div class="model"></div>
+        <label>Add a comment <i>(no special characters!)</i></label>
+        <section class="commentArea"></section>
 
-        <label>View</label>
         <div>
-            First name: <input id="firstName">
-            Surname: <input id="lastName">
+            Name:
+            <input id="name" onfocus="this.value=''">
+            Comment:
+            <textarea rows="4" id="comment"></textarea>
         </div>
 
     </form>

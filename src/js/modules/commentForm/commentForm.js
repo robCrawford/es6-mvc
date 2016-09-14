@@ -6,12 +6,12 @@ import Controller from "./Controller"
 "use strict"
 
 /*
-  Example module for a web form
+  Example module
 */
 export default class {
 
     constructor() {
-        return app.add("userForm", Model, View, Controller);
+        return app.add("commentForm", Model, View, Controller);
     }
 
 };

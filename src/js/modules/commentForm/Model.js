@@ -15,7 +15,7 @@ export default class extends app.Model {
         this.sanitize = props => {
             for (const p in props) {
                 if (props.hasOwnProperty(p) && typeof props[p] === "string") {
-                    props[p] = props[p].replace(/\W/g, '');
+                    props[p] = props[p].replace(/[^\w\s'!.,;]/g, '');
                 }
             }
             return props;
@@ -26,12 +26,12 @@ export default class extends app.Model {
 
         // Populate model
         this.set({
-            firstName: 'Philip',
-            lastName: 'Fry'
+            comment: '',
+            date: Date.now()
         });
 
         // Set by path
-        this.set('location.year', 2052);
+        this.set('user.name', 'Guest');
     }
 
 };

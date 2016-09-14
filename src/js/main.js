@@ -1,7 +1,7 @@
 import Boot from "./modules/Boot/Boot";
-import UserForm from "./modules/UserForm/UserForm";
+import CommentForm from "./modules/CommentForm/CommentForm";
 
 new Boot()
     .then(() => {
-        new UserForm();
+        new CommentForm();
     });

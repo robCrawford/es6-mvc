@@ -13,7 +13,7 @@ export default class extends app.View {
         super();
 
         // Set DOM ref
-        this.el = document.getElementById("userForm");
+        this.el = document.getElementById("commentForm");
     }
 
 };
