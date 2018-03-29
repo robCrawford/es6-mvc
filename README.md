@@ -1,5 +1,5 @@
 
-#ES6 App
+# ES6 App
 
 A minimal MVC pattern for ES6 applications.  
 This should provide the wiring for data binding and SOC, with no additional features. *[(app.js)](https://github.com/robCrawford/es6-app/blob/master/src/js/lib/app.js)*  
