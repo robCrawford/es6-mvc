@@ -2,7 +2,7 @@
 # ES6 App
 
 A minimal MVC pattern for ES6 applications.  
-This should provide the wiring for data binding and SOC, with no additional features. *[(app.js)](https://github.com/robCrawford/es6-app/blob/master/src/js/lib/app.js)*  
+This should provide the wiring for data binding and SOC, with no additional features. *[(app.js)](https://github.com/robCrawford/es6-mvc/blob/master/src/js/lib/app.js)*  
 Set up for ES6 modules with sourcemaps, Karma, and Less.  
 
 
@@ -14,7 +14,7 @@ Run: `dist/index.html`
 
 
 ### Example syntax  
-*commentForm/CommentForm.js - ([demo here](http://robcrawford.github.io/demos/es6-app/))*
+*commentForm/CommentForm.js - ([demo here](http://robcrawford.github.io/demos/es6-mvc/))*
 ```javascript
 import * as app from "../../lib/app";
 import Model from "./Model"
